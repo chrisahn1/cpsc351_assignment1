@@ -7,6 +7,9 @@
 #include <unistd.h>
 #include "msg.h"    /* For the message struct */
 
+#include <sys/types.h>
+#include <sys/ipc.h>
+
 /* The size of the shared memory chunk */
 #define SHARED_MEMORY_CHUNK_SIZE 1000
 
@@ -35,14 +38,17 @@ void init(int& shmid, int& msqid, void*& sharedMemPtr)
 		    is unique system-wide among all SYstem V objects. Two objects, on the other hand,
 		    may have the same key.
 	 */
-	
-
-	
+	pid_t pid = getpid();
+	key_t key;
+	key = ftok("keyfile.txt", 'a');
 	/* TODO: Get the id of the shared memory segment. The size of the segment must be SHARED_MEMORY_CHUNK_SIZE */
 	/* TODO: Attach to the shared memory */
 	/* TODO: Attach to the message queue */
 	/* Store the IDs and the pointer to the shared memory region in the corresponding parameters */
-	
+	shmid = shmget(key, SHARED_MEMORY_CHUNK_SIZE, IPC_CREAT | 0666);
+	msqid = msgget(key, shmid);
+	sharedMemPtr = (pid_t *) shmat(shmid, NULL, 0);
+
 }
 
 /**
