@@ -1,5 +1,3 @@
-
-
 #include <sys/shm.h>
 #include <sys/msg.h>
 #include <stdio.h>
@@ -46,8 +44,9 @@ void init(int& shmid, int& msqid, void*& sharedMemPtr)
 	/* TODO: Attach to the message queue */
 	/* Store the IDs and the pointer to the shared memory region in the corresponding parameters */
 	shmid = shmget(key, SHARED_MEMORY_CHUNK_SIZE, IPC_CREAT | 0666);
+	sharedMemPtr = (void *) shmat(shmid, NULL, 0);
 	msqid = msgget(key, shmid);
-	sharedMemPtr = (pid_t *) shmat(shmid, NULL, 0);
+	//sharedMemPtr = (pid_t *) shmat(shmid, NULL, 0);
 
 }
 
@@ -61,6 +60,9 @@ void init(int& shmid, int& msqid, void*& sharedMemPtr)
 void cleanUp(const int& shmid, const int& msqid, void* sharedMemPtr)
 {
 	/* TODO: Detach from shared memory */
+	shmdt(sharedMemPtr);
+	shmctl(shmid, IPC_RMID, NULL);
+	shmctl(msqid, IPC_RMID, NULL);
 }
 
 /**
@@ -103,10 +105,11 @@ void send(const char* fileName)
 		/* TODO: Send a message to the receiver telling him that the data is ready 
  		 * (message of type SENDER_DATA_TYPE) 
  		 */
-		
+		int msgsnd();
 		/* TODO: Wait until the receiver sends us a message of type RECV_DONE_TYPE telling us 
  		 * that he finished saving the memory chunk. 
  		 */
+
 	}
 	
 
