@@ -63,6 +63,11 @@ void init(int& shmid, int& msqid, void*& sharedMemPtr)
 	/* TODO: Allocate a piece of shared memory. The size of the segment must be SHARED_MEMORY_CHUNK_SIZE. */
 
 	shmid = shmget(memKey,SHARED_MEMORY_CHUNK_SIZE, 0644| IPC_CREAT);
+	if(shmid == -1)
+	{
+		perror("shmgat ERROR");
+		exit(1);
+	}
 
 	/* TODO: Attach to the shared memory */
 	
@@ -92,7 +97,7 @@ void init(int& shmid, int& msqid, void*& sharedMemPtr)
 void mainLoop()
 {
 	/* The size of the mesage */
-	int msgSize = 0;
+	int msgSize;
 
 	/* Open the file for writing */
 	FILE* fp = fopen(recvFileName, "w");
@@ -103,7 +108,6 @@ void mainLoop()
 		perror("fopen");
 		exit(-1);
 	}
-
     /* TODO: Receive the message and get the message size. The message will
      * contain regular information. The message will be of SENDER_DATA_TYPE
      * (the macro SENDER_DATA_TYPE is defined in msg.h).  If the size field
@@ -122,6 +126,14 @@ void mainLoop()
 	 //message rMessage;
 
 	 message myMessage;
+
+	 if(msgrcv(msqid, &myMessage, sizeof(struct message) - sizeof(long), SENDER_DATA_TYPE, 0) == -1)
+	 {
+		 perror("msgrcv ERROR");
+		 fclose(fp);
+		 exit(1);
+	 }
+	 //myMessage.printer();
 
 	int messageSize= SENDER_DATA_TYPE;
 
@@ -147,7 +159,7 @@ void mainLoop()
 
 				myMessage.mtype=RECV_DONE_TYPE;
 
-				printf("Returning empty message....\n");
+				//printf("Returning empty message....\n");
 				if(msgsnd(msqid, &myMessage, 0, 0) ==-1)
 				{
 					perror("sMessage");
@@ -159,7 +171,10 @@ void mainLoop()
 					exit(1);
 				}
 
-				printf("Message sent!....");
+				msgSize = myMessage.size;
+
+				printf("Message sent!....\n");
+				//myMessage.printer();
 		}
 
 		/* We are done */
