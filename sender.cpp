@@ -10,7 +10,7 @@
 
 /* The size of the shared memory chunk */
 #define SHARED_MEMORY_CHUNK_SIZE 1000
-
+#define MESSAGE_COUNT 1000
 /* The ids for the shared memory segment and the message queue */
 int shmid, msqid;
 
@@ -25,6 +25,7 @@ void* sharedMemPtr;
 
 void init(int& shmid, int& msqid, void*& sharedMemPtr)
 {
+
 	/* TODO: 
         1. Create a file called keyfile.txt containing string "Hello world" (you may do
  		    so manually or from the code).
@@ -96,6 +97,7 @@ void send(const char* fileName)
 
 	/* A buffer to store message we will send to the receiver. */
 	message sndMsg; 
+	sndMsg.mtype = SENDER_DATA_TYPE;
 	
 	/* A buffer to store message received from the receiver. */
 	message rcvMsg;
@@ -179,3 +181,4 @@ int main(int argc, char** argv)
 		
 	return 0;
 }
+
