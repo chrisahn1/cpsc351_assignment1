@@ -1,3 +1,6 @@
+//#include <iostream>
+#include <string>
+#include <fstream>
 #include <sys/shm.h>
 #include <sys/msg.h>
 #include <signal.h>
@@ -10,7 +13,7 @@
 /* The size of the shared memory chunk */
 #define SHARED_MEMORY_CHUNK_SIZE 1000
 
-
+using namespace std;
 
 /* The ids for the shared memory segment and the message queue */
 int shmid, msqid;
@@ -39,7 +42,6 @@ const char recvFileName[] = "recvfile";
  * @param msqid - the id of the shared memory
  * @param sharedMemPtr - the pointer to the shared memory
  */
-
 void init(int& shmid, int& msqid, void*& sharedMemPtr)
 {
 
@@ -129,7 +131,7 @@ void mainLoop()
 
 	 if(msgrcv(msqid, &myMessage, sizeof(struct message) - sizeof(long), SENDER_DATA_TYPE, 0) == -1)
 	 {
-		 perror("msgrcv ERROR");
+		 perror("msgrcv ERROR1");
 		 fclose(fp);
 		 exit(1);
 	 }
@@ -138,6 +140,18 @@ void mainLoop()
 	int messageSize= SENDER_DATA_TYPE;
 
 	msgSize = myMessage.size;
+
+	/*fstream myfile;
+	myfile.open(recvFileName);
+	string c;
+	while(myfile)
+	{
+		myfile >> c;
+		//printf(c, " ");
+		cout << c;
+	}*/
+
+	
 
 	while(msgSize != 0)
 	{
@@ -159,7 +173,6 @@ void mainLoop()
 
 				myMessage.mtype=RECV_DONE_TYPE;
 
-				//printf("Returning empty message....\n");
 				if(msgsnd(msqid, &myMessage, 0, 0) ==-1)
 				{
 					perror("sMessage");
@@ -167,14 +180,13 @@ void mainLoop()
 				}
 				if(msgrcv(msqid, &myMessage, sizeof(struct message) - sizeof(long), SENDER_DATA_TYPE, 0) == -1)
 				{
-					perror("msgrcv ERROR");
+					perror("msgrcv ERROR2");
 					exit(1);
 				}
 
 				msgSize = myMessage.size;
 
 				printf("Message sent!....\n");
-				//myMessage.printer();
 		}
 
 		/* We are done */
@@ -185,6 +197,17 @@ void mainLoop()
 			fclose(fp);
 		}
 	}
+	printf("\n\n%s\n",string(50, '~').c_str());
+	fp = fopen(recvFileName, "r");
+	int c;
+	 while((c = getc(fp)) != EOF)
+	 {
+	 	putchar(c);
+
+	}
+	printf("\n%s\n\n\n",string(50,'~').c_str());
+
+
 }
 
 
